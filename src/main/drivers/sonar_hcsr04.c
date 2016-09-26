@@ -54,14 +54,15 @@ void hcsr04_extiHandler(extiCallbackRec_t* cb)
     uint32_t timing_stop;
     UNUSED(cb);
 
-    if (digitalIn(sonarHardware->echo_gpio, sonarHardware->echo_pin) != 0) {
-        timing_start = micros();
-    } else {
+//   if (digitalIn(sonarHardware->echo_gpio, sonarHardware->echo_pin) != 0) {
+//       timing_start = micros();
+//   } else {
         timing_stop = micros();
         if (timing_stop > timing_start) {
             measurement = timing_stop - timing_start;
         }
-    }
+        timing_start = timing_stop; 
+//   }
 }
 
 void hcsr04_init(const sonarHardware_t *initialSonarHardware, sonarRange_t *sonarRange)
@@ -91,7 +92,7 @@ void hcsr04_init(const sonarHardware_t *initialSonarHardware, sonarRange_t *sona
 
     echoIO = IOGetByTag(sonarHardware->echoIO);
     EXTIHandlerInit(&hcsr04_extiCallbackRec, hcsr04_extiHandler);
-    EXTIConfig(echoIO, &hcsr04_extiCallbackRec, NVIC_PRIO_SONAR_EXTI, EXTI_Trigger_Rising_Falling); // TODO - priority!
+    EXTIConfig(echoIO, &hcsr04_extiCallbackRec, NVIC_PRIO_SONAR_EXTI, EXTI_Trigger_Rising); // TODO - priority!
     EXTIEnable(echoIO, true);
 
     lastMeasurementAt = millis() - 60; // force 1st measurement in hcsr04_get_distance()
